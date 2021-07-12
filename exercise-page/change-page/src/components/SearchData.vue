@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1 v-if="notFind">搜尋結果：{{ userSearch }}</h1>
-    <h1 v-else>找不到請再嘗試一遍</h1>
+    <h1 v-else>找不到請再嘗試一遍，2秒後即將返回上個頁面</h1>
     <div class="row" ref="content">
       <div
         class="col-md-6 py-2 px-1"
@@ -85,6 +85,13 @@ export default {
   watch: {
     getData() {
       this.showWebData();
+    },
+    notFind() {
+      if (this.notFind === false) {
+        setTimeout(() => {
+          this.$router.go(-1);
+        }, 2000);
+      }
     },
   },
 };
