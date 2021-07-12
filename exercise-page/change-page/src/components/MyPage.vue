@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <search></search>
     <div class="row" ref="content">
       <div
         class="col-md-6 py-2 px-1"
@@ -52,13 +53,21 @@
       <ul class="pagination" ref="pageid">
         <li
           class="page-item"
+          @click.prevent="previousBtn"
+          v-show="!previousPage"
+        >
+          <a class="page-link" href="#"> 上一頁 </a>
+        </li>
+        <li
+          class="page-item"
           v-for="(item, index) in dataRequire.btnTotal"
           :key="index"
-          @click="change($event, index)"
+          @click.prevent="change($event, index)"
         >
-          <a class="page-link" href="#" :class="{ active: isActive }">{{
-            item
-          }}</a>
+          <a class="page-link" href="#">{{ item }}</a>
+        </li>
+        <li class="page-item" v-show="!nextPage" @click.prevent="nextBtn">
+          <a class="page-link" href="#"> 下一頁 </a>
         </li>
       </ul>
     </nav>
@@ -67,20 +76,32 @@
 
 <script>
 import { getData } from "../network/home";
+
+import Search from "../components/Search.vue";
 export default {
   name: "mypage",
+  components: {
+    Search,
+  },
   data() {
     return {
       getData: [],
       getNowWebData: [],
       dataRequire: {},
-      isActive: false,
     };
   },
   created() {
     getData().then((res) => {
       this.getData = res.result.records;
     });
+  },
+  computed: {
+    previousPage() {
+      return this.dataRequire.currentPage === 1;
+    },
+    nextPage() {
+      return this.dataRequire.currentPage === this.dataRequire.btnTotal;
+    },
   },
   methods: {
     showNowPage(current = 1) {
@@ -99,10 +120,6 @@ export default {
           nowData.push(item);
         }
       });
-      let page = {
-        currentPage,
-        btnTotal,
-      };
       this.getNowWebData = nowData;
       this.dataRequire = {
         data,
@@ -118,16 +135,20 @@ export default {
     change(e, index) {
       // localName = 屬性名稱
       // innerText = value
-      this.isActive = false;
       let currentpage = parseInt(e.target.innerText);
       let nowIndex = index + 1;
-      console.log(currentpage);
-      console.log(nowIndex);
 
       if (nowIndex === currentpage) {
-        this.isActive = true;
         this.showNowPage(currentpage);
       }
+    },
+    previousBtn() {
+      let nowPage = this.dataRequire.currentPage;
+      this.showNowPage(nowPage - 1);
+    },
+    nextBtn() {
+      let nowPage = this.dataRequire.currentPage;
+      this.showNowPage(nowPage + 1);
     },
   },
   watch: {
@@ -141,5 +162,8 @@ export default {
 <style lang="scss" scoped>
 .active {
   background-color: red;
+}
+.isShow {
+  display: none;
 }
 </style>
